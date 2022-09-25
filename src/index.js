@@ -18,16 +18,20 @@ function onInputFetchCountries(event) {
   const inputValue = event.target.value.trim();
 
   if (inputValue === '') {
-    countryListEl.innerHTML = '';
-    countryInfoEl.innerHTML = '';
+    clearCountryList();
+    clearCountryInfo();
     return;
   }
 
   fetchCountries(inputValue)
     .then(data => {
+      clearCountryList();
+      clearCountryInfo();
       if (data.length === 1) {
+        clearCountryList();
         renderInformOfCountry(data);
       } else if (data.length > 2 && data.length <= 10) {
+        clearCountryInfo();
         createMarkupListCountries(data);
       } else {
         Notiflix.Notify.info(
@@ -35,16 +39,26 @@ function onInputFetchCountries(event) {
         );
       }
     })
-    .catch(error =>
-      Notiflix.Notify.failure('Oops, there is no country with that name')
-    );
+    .catch(error => {
+      clearCountryList();
+      clearCountryInfo();
+      Notiflix.Notify.failure('Oops, there is no country with that name');
+    });
+}
+
+function clearCountryList() {
+  countryListEl.innerHTML = '';
+}
+
+function clearCountryInfo() {
+  countryInfoEl.innerHTML = '';
 }
 
 function createMarkupListCountries(countries) {
   const murkup = countries
     .map(country => {
       return `<li class="country-list__item">
-      <img class="country-list__image" src="${country.flags.svg}" alt="Flag of country" width="40" hight="40">
+      <img class="country-list__image" src="${country.flags.svg}" alt="Flag of country" width="40" height="30">
       <p class="country-list__text">${country.name.official}</p>
     </li>`;
     })
@@ -57,7 +71,7 @@ function renderInformOfCountry([country]) {
   const murkupInformOfCountry = `<div class="country-info__box">
   <img class="country-info__image" src="${
     country.flags.svg
-  }" alt="Flag of country" width="50" hight="50">
+  }" alt="Flag of country" width="50" height="40">
       <p class="country-info__main-text">${country.name.official}</p>
       </div>
       <p class="country-info__secondary-text"><span class="country-info__name-text">Capital: </span>${
