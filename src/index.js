@@ -14,7 +14,7 @@ inputEl.addEventListener(
   debounce(onInputFetchCountries, DEBOUNCE_DELAY)
 );
 
-function onInputFetchCountries(event) {
+async function onInputFetchCountries(event) {
   const inputValue = event.target.value.trim();
 
   if (inputValue === '') {
@@ -23,27 +23,48 @@ function onInputFetchCountries(event) {
     return;
   }
 
-  fetchCountries(inputValue)
-    .then(data => {
+  try {
+    const data = await fetchCountries(inputValue);
+    clearCountryList();
+    clearCountryInfo();
+    if (data.length === 1) {
       clearCountryList();
+      renderInformOfCountry(data);
+    } else if (data.length > 2 && data.length <= 10) {
       clearCountryInfo();
-      if (data.length === 1) {
-        clearCountryList();
-        renderInformOfCountry(data);
-      } else if (data.length > 2 && data.length <= 10) {
-        clearCountryInfo();
-        createMarkupListCountries(data);
-      } else {
-        Notiflix.Notify.info(
-          'Too many matches found. Please enter a more specific name.'
-        );
-      }
-    })
-    .catch(error => {
-      clearCountryList();
-      clearCountryInfo();
-      Notiflix.Notify.failure('Oops, there is no country with that name');
-    });
+      createMarkupListCountries(data);
+    } else {
+      Notiflix.Notify.info(
+        'Too many matches found. Please enter a more specific name.'
+      );
+    }
+  } catch (error) {
+    clearCountryList();
+    clearCountryInfo();
+    Notiflix.Notify.failure('Oops, there is no country with that name');
+  }
+
+  // fetchCountries(inputValue)
+  //   .then(data => {
+  //     clearCountryList();
+  //     clearCountryInfo();
+  //     if (data.length === 1) {
+  //       clearCountryList();
+  //       renderInformOfCountry(data);
+  //     } else if (data.length > 2 && data.length <= 10) {
+  //       clearCountryInfo();
+  //       createMarkupListCountries(data);
+  //     } else {
+  //       Notiflix.Notify.info(
+  //         'Too many matches found. Please enter a more specific name.'
+  //       );
+  //     }
+  //   })
+  //   .catch(error => {
+  //     clearCountryList();
+  //     clearCountryInfo();
+  //     Notiflix.Notify.failure('Oops, there is no country with that name');
+  //   });
 }
 
 function clearCountryList() {
